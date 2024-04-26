@@ -1,19 +1,35 @@
+import Notiflix from "notiflix";
+const form = document.querySelector('form');
+
+form.addEventListener('submit', onSubmit);
+function onSubmit(e){
+  e.preventDefault();
+  const delay = parseInt(form.elements.delay.value);
+  const step = parseInt(form.elements.step.value);
+  const amount = parseInt(form.elements.amount.value);
+
+  for (let i = 1 ; i <= amount; i++){
+    createPromise(i , delay + (i - 1) * step )
+    .then(({ position, delay }) => {
+      Notiflix.Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
+    })
+    .catch(({ position, delay }) => {
+      Notiflix.Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
+    });
+   e.currentTarget.reset()
+  }
+}
+
 function createPromise(position, delay) {
   const shouldResolve = Math.random() > 0.3;
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (shouldResolve > 0.3) {
-        resolve('Success! Value passed to resolve function');
+      if (shouldResolve) {
+        resolve({position, delay});
       } else {
-        reject('Error! Error passed to reject function');
+        reject({position, delay});
       }
-    }, 2000);
+    }, delay);
   });
 }
-createPromise(2, 1500)
-  .then(({ position, delay }) => {
-    console.log(`✅ Fulfilled promise ${position} in ${delay}ms`);
-  })
-  .catch(({ position, delay }) => {
-    console.log(`❌ Rejected promise ${position} in ${delay}ms`);
-  });
+
